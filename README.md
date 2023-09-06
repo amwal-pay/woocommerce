@@ -25,55 +25,56 @@ used amwal getway to make payment online when make order
 
 ## 1. Install wordpress && add WooCommerce
 ## 2. Add new plugin 
-  ![ Add new plugin ](/wp-content/plugins/amwal_payment/images/Screen1.png)
+ <a href="https://imgbox.com/LSJ9goCQ" target="_blank"><img src="https://images2.imgbox.com/76/29/LSJ9goCQ_o.png" alt="image host"/></a>
+
 ## 3. upload plugin
   1- choose upload plugin
-  ![upload plugin](/wp-content/plugins/amwal_payment/images/Screen2.png)
+    <a href="https://imgbox.com/ZfKJ9KJJ" target="_blank"><img src="https://images2.imgbox.com/5c/83/ZfKJ9KJJ_o.png" alt="upload plugin"/></a> 
   2- choose plugin file.zip from your pc
   ![Screen3](/wp-content/plugins/amwal_payment/images/Screen3.png)
   3- click install now
-   ![Screen4](/wp-content/plugins/amwal_payment/images/Screen4.png)
+    <a href="https://imgbox.com/wV7Wyrnc" target="_blank"><img src="https://images2.imgbox.com/ed/b2/wV7Wyrnc_o.png" alt="image host"/></a>
   4- active amwal Getway from plugins
-   ![Screen4](/wp-content/plugins/amwal_payment/images/Screen5.png)
+     <a href="https://imgbox.com/Ol65bYnR" target="_blank"><img src="https://images2.imgbox.com/52/64/Ol65bYnR_o.png" alt="image host"/></a> 
 
 ## 4. Setting in Woocommerce
   1- go settings 
-   ![Screen6](/wp-content/plugins/amwal_payment/images/Screen6.png)
+   <a href="https://imgbox.com/xxI4WTgP" target="_blank"><img src="https://images2.imgbox.com/13/1b/xxI4WTgP_o.png" alt="image host"/></a>
   2- go payments
-      ![Screen7](/wp-content/plugins/amwal_payment/images/Screen7.png)
+      <a href="https://imgbox.com/TLaPIntx" target="_blank"><img src="https://images2.imgbox.com/f8/50/TLaPIntx_o.png" alt="image host"/></a>
   3- add payment setting
-     ![Screen8](/wp-content/plugins/amwal_payment/images/Screen8.png)
+  <a href="https://imgbox.com/3npSwwOS" target="_blank"><img src="https://images2.imgbox.com/55/bd/3npSwwOS_o.png" alt="image host"/></a>
 
 ## 6. Manage payment in Woocommerce
    1- Click to manage
-   ![Screen9](/wp-content/plugins/amwal_payment/images/Screen9.png)
+    <a href="https://imgbox.com/PDmgZsig" target="_blank"><img src="https://images2.imgbox.com/33/0c/PDmgZsig_o.png" alt="image host"/></a>
    2- Add Configration data
-    ![Screen10](/wp-content/plugins/amwal_payment/images/Screen10.png)
+    <a href="https://imgbox.com/yS36L8gL" target="_blank"><img src="https://images2.imgbox.com/ce/3e/yS36L8gL_o.png" alt="image host"/></a>
 
 ## 7. Create new order
  1- Add product to cart
- ![Screen11](/wp-content/plugins/amwal_payment/images/Screen11.png)
+  <a href="https://imgbox.com/l9Z6ycH7" target="_blank"><img src="https://images2.imgbox.com/c6/b3/l9Z6ycH7_o.png" alt="image host"/></a> 
  2- Go to cart
-  ![Screen12](/wp-content/plugins/amwal_payment/images/Screen12.png)
+   <a href="https://imgbox.com/J3e7Y6DU" target="_blank"><img src="https://images2.imgbox.com/76/a8/J3e7Y6DU_o.png" alt="image host"/></a>
  3- Make checkout 
-  ![Screen13](/wp-content/plugins/amwal_payment/images/Screen13.png)
+     <a href="https://imgbox.com/6lEszbAh" target="_blank"><img src="https://images2.imgbox.com/10/0c/6lEszbAh_o.png" alt="image host"/></a> 
  4- Choose amwal pay
-  ![Screen14](/wp-content/plugins/amwal_payment/images/Screen14.png)
+ <a href="https://imgbox.com/RwMVS96a" target="_blank"><img src="https://images2.imgbox.com/c8/43/RwMVS96a_o.png" alt="image host"/></a>
  5- click to place order
-  ![Screen15](/wp-content/plugins/amwal_payment/images/Screen15.png)
+  <a href="https://imgbox.com/H3sgXuTp" target="_blank"><img src="https://images2.imgbox.com/fd/f2/H3sgXuTp_o.png" alt="image host"/></a>
  6- pop up of paymment
-  ![Screen16](/wp-content/plugins/amwal_payment/images/Screen16.png)
+   <a href="https://imgbox.com/dQqzbxs7" target="_blank"><img src="https://images2.imgbox.com/4e/59/dQqzbxs7_o.png" alt="image host"/></a>
  7- Choose type to pay
-  ![Screen17](/wp-content/plugins/amwal_payment/images/Screen17.png)
+    <a href="https://imgbox.com/gUPxpTyP" target="_blank"><img src="https://images2.imgbox.com/4d/49/gUPxpTyP_o.png" alt="image host"/></a>
  8- Confirm data success
-  ![Screen18](/wp-content/plugins/amwal_payment/images/Screen18.png)
+ <a href="https://imgbox.com/FsoBMNdO" target="_blank"><img src="https://images2.imgbox.com/6b/c9/FsoBMNdO_o.png" alt="image host"/></a> 
  9- click to pay
-  ![Screen19](/wp-content/plugins/amwal_payment/images/Screen18.png)
+ <a href="https://imgbox.com/FsoBMNdO" target="_blank"><img src="https://images2.imgbox.com/6b/c9/FsoBMNdO_o.png" alt="image host"/></a> 
  10- payed success and wait to go invoice
-  ![Screen19](/wp-content/plugins/amwal_payment/images/Screen18.png)
+  <a href="https://imgbox.com/0SKJh8ah" target="_blank"><img src="https://images2.imgbox.com/94/3c/0SKJh8ah_o.png" alt="image host"/></a> 
  11- invoice of payment
- ![Screen20](/wp-content/plugins/amwal_payment/images/Screen20.png)
+<a href="https://imgbox.com/9lzqND6W" target="_blank"><img src="https://images2.imgbox.com/93/df/9lzqND6W_o.png" alt="image host"/></a>
  12- order completed
- ![Screen20](/wp-content/plugins/amwal_payment/images/Screen21.png)
+ <a href="https://imgbox.com/1KyvQIGU" target="_blank"><img src="https://images2.imgbox.com/11/8c/1KyvQIGU_o.png" alt="image host"/></a>
 
 
