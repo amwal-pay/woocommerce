@@ -2,7 +2,7 @@
 
 ## Description
 
-This is makes to make payment online by  Amwal getway
+This repo is to guide on how to integrate APG Checkout Page with the woo commerce project
 
 ## Installation
 
