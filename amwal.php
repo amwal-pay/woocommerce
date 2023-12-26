@@ -1,11 +1,11 @@
 <?php
 /******************************************************************************************************************************
  *
- *     Plugin Name: amwal Gateway - PayForm
+ *     Plugin Name: Amwal Gateway - PayForm
  *     Plugin URI: http://www.amwal.io
- *     Description: amwal Credit Card Payment gateway for woocommerce. This plugin supports woocommerce version 3.0.0 or greater version.
+ *     Description: Amwal Credit Card Payment gateway for woocommerce. This plugin supports woocommerce version 3.0.0 or greater version.
  *     Version: 2.4.0
- *     Author: amwal
+ *     Author: Amwal
  *     Author URL: http://amwal.io
  *
  ********************************************************************************************************************************/
@@ -24,11 +24,11 @@ function woocommerce_amwal_creditcard_wc_init()
 
         public function __construct()
         {
-           
+
             $this->id = 'amwal';
             // $this->icon = apply_filters('woocommerce_amwal_icon',  plugins_url( 'icons/amwal.png' , __FILE__ ));
-            $this->medthod_title = 'amwal Payment Gateway - PayForm';
-            $this->method_description = 'amwal payment Gatewey';
+            $this->medthod_title = 'Amwal Payment Gateway - PayForm';
+            $this->method_description = 'Amwal Payment Gatewey';
             $this->has_fields = false;
             $this->init_settings();
             $this->init_form_fields();
@@ -55,14 +55,14 @@ function woocommerce_amwal_creditcard_wc_init()
                 $this->liveurl = "https://checkout.amwalpg.com:8443/api/smartbox/proxy/MerchantOrder/VerifySmartBoxDirectCall";
                 add_action('wp_head', 'wpb_load_test_server_javascript');
             }
-       
+
             if (isset($_GET['lightbox'])) {
                 excuse_hook_javascript($_SESSION['amount'],$this->settings, $_SESSION['ref_number']);
             }
 
             $_SESSION['systemreference'] = null;
             if(isset($_GET['systemreference'])){
-                $_SESSION['systemreference'] = $_GET['systemreference'];  
+                $_SESSION['systemreference'] = $_GET['systemreference'];
             }
 
             if ( isset($_GET['ordercomplete'])) {
@@ -83,12 +83,12 @@ function woocommerce_amwal_creditcard_wc_init()
                 'enabled' => array(
                     'title' => __('Enable/Disable', 'amwal'),
                     'type' => 'checkbox',
-                    'label' => __('Enable amwal PayForm Gateway', 'amwal'),
+                    'label' => __('Enable Amwal PayForm Gateway', 'amwal'),
                     'default' => 'no'),
                 'live' => array(
                     'title' => __('Live/Test', 'amwal'),
                     'type' => 'checkbox',
-                    'label' => __('Enable Live amwal PayForm Gateway', 'amwal'),
+                    'label' => __('Enable Live Amwal PayForm Gateway', 'amwal'),
                     'default' => 'no'),
                 'merchant_id' => array(
                     'title' => __('Merchant id', 'amwal'),
@@ -265,7 +265,7 @@ function woocommerce_amwal_creditcard_wc_init()
                 $amwal_args['postal_code'] = substr($order->get_billing_phone(), 0, 5);
                 $amwal_args['postal_code_shipping'] = substr($order->get_billing_phone(), 0, 5);
             }
-            
+
             // Cart Contents
             $item_loop = 0;
             $total_product_value = 0;
@@ -319,7 +319,7 @@ function woocommerce_amwal_creditcard_wc_init()
             $amwal_args["DeliveryType"] = $order->get_shipping_method();
             $amwal_args["CustomerID"] = get_current_user_id();
             $amwal_args["channelOfOperations"] = "channelOfOperations";
- 
+
             $amwal_args = apply_filters('woocommerce_amwal_args', $amwal_args);
             $pay_url = $this->before_process($amwal_args);
 
@@ -335,7 +335,7 @@ function woocommerce_amwal_creditcard_wc_init()
             global $woocommerce;
             $order = new WC_Order($order_id);
             $_SESSION['order_id'] = $order_id;
-          
+
             if (!$this->form_submission_method) {
 
                 $_SESSION['amount'] = $order->get_total() + $order->get_total_discount();
@@ -506,12 +506,12 @@ function woocommerce_amwal_creditcard_wc_init()
             // //     'SecureHashValue' => $secureHash,
             // //     'TerminalId' => $this->terminal_id,
             // // );
-         
+
 
             // // $getdataresponse = $this->sendRequest($this->liveurl, $request_string);
 
             // // $object = json_decode($getdataresponse);
-    
+
             // if ($object != null) {
             //     $done = true;
 
@@ -520,7 +520,7 @@ function woocommerce_amwal_creditcard_wc_init()
             //         $paidAmount = doubleval($_SESSION['amount'])*100;
             //         $isPaymentApproved = false;
             //         $transactions = $object->Transactions;
-                
+
             //         foreach ($transactions as $transaction) {
             //             $dateTransactions = $transaction->DateTransactions;
             //             foreach ($dateTransactions as $dateTransaction) {
@@ -539,7 +539,7 @@ function woocommerce_amwal_creditcard_wc_init()
             //         }
                     $isPaymentApproved =true;
                     if ($isPaymentApproved) {
-                     
+
                         $this->msg['class'] = 'woocommerce_message';
                         $payRef = "Payment Reference Number ". $_SESSION['systemreference'];
                         $check = $order->payment_complete($payRef);
@@ -578,7 +578,7 @@ function woocommerce_amwal_creditcard_wc_init()
             //         exit;
             //     }
 
-            // } 
+            // }
         }
 
 
@@ -1015,17 +1015,53 @@ function woocommerce_amwal_creditcard_wc_init()
     }
 
 
+
+    function generateString($amount, $currencyId, $merchantId, $merchantReference,
+                            $requestDateTime, $terminalId,$hmacKey) {
+        // Convert HMAC key to byte
+        $secret = hex2bin($hmacKey);
+
+        // Calculate amount
+
+        // Concatenate information
+        $string = "Amount={$amount}&CurrencyId={$currencyId}&MerchantId={$merchantId}&MerchantReference={$merchantReference}&RequestDateTime={$requestDateTime}&TerminalId={$terminalId}";
+
+        // Generate SIGN
+        $sign = bin2hex(hash_hmac('sha256', $string, $secret));
+
+
+               echo '<script type="text/javascript">
+  setTimeout(function(){
+console.log("' . $string . '";);
+
+console.log("' . $sign . '";);
+     }, 2000);
+       </script>';
+        return $sign;
+    }
+
     function excuse_hook_javascript($amount,$setting, $refNumber)
     {
+
+//        $amount = $amount * 100;
+
+        $currentdate = new DateTime();
+        $datetime = $currentdate->format('Y-m-d\TH:i:s\Z');
+
+        // Generate secure hash
+        $secret_key = generateString($amount,512,$setting['merchant_id'],$refNumber,
+            $datetime,$setting['terminal_id'], $setting['secret_key']);
 
        echo '<script type="text/javascript">
                 var amount =  ' . $amount . ';
                 var merchant_id = ' . $setting['merchant_id'] . ';
                 var terminal_id = ' . $setting['terminal_id'] . ';
-                var secret_key = "'. $setting['secret_key'] . '";
+                var secret_key = "'.$secret_key . '";
                 var refNumber =  "' . $refNumber . '";
+                var datetime =  "' . $datetime . '";
                 setTimeout(function(){
-                            callSmartBox( amount,merchant_id,terminal_id,secret_key, refNumber );
+                            callSmartBox( amount,merchant_id,
+                            terminal_id,secret_key, refNumber ,datetime,512);
                             }, 2000);
             </script>';
 
@@ -1063,13 +1099,13 @@ function woocommerce_amwal_creditcard_wc_init()
         if(isset($_SESSION['order_id'])){
               $order = new WC_Order($_SESSION['order_id']);
             $url = $order->get_checkout_payment_url(true);
-            
+
             $data = array(
                 'result' => 'success',
                 'redirect' => $order->get_checkout_payment_url(true)
             );
         }
-      
+
 
     }
 
@@ -1092,7 +1128,8 @@ function woocommerce_amwal_creditcard_wc_init()
             }
             var callBackStatus = "";
 
-            function callSmartBox(amount,merchant_id,terminal_id,secret_key, refNumber ) {
+            function callSmartBox(amount,merchant_id,terminal_id,
+                                  secret_key, refNumber,datetime ,currencyId) {
                 var mID = merchant_id;
                 var tID =  terminal_id ;
                 if (mID === "" || tID === "") {
@@ -1100,11 +1137,7 @@ function woocommerce_amwal_creditcard_wc_init()
                      return;
                 }
 
-                var currentdate = new Date(); 
-                var datetime = currentdate.toISOString();
-                var paymentMethodFromSmartBox = null;
-                var amount = amount;
-                var currencyId = 512;
+                  var paymentMethodFromSmartBox = null;
                 var languageId = 0;
                 var secureHash =secret_key;
                 var trxDateTime = datetime;
