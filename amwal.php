@@ -57,15 +57,15 @@ function woocommerce_amwal_creditcard_wc_init()
             }
 
             if (isset($_GET['lightbox'])) {
-                excuse_hook_javascript($_SESSION['amount'],$this->settings, $_SESSION['ref_number']);
+                excuse_hook_javascript($_SESSION['amount'], $this->settings, $_SESSION['ref_number']);
             }
 
             $_SESSION['systemreference'] = null;
-            if(isset($_GET['systemreference'])){
+            if (isset($_GET['systemreference'])) {
                 $_SESSION['systemreference'] = $_GET['systemreference'];
             }
 
-            if ( isset($_GET['ordercomplete'])) {
+            if (isset($_GET['ordercomplete'])) {
                 $this->complete_transaction();
             }
 
@@ -114,11 +114,11 @@ function woocommerce_amwal_creditcard_wc_init()
                     'default' => '',
                     'size' => '50',
                     'required' => true),
-                    'complete_paid_order' => array(
-                        'title' => __('Complete order after payment', 'amwal'),
-                        'type' => 'checkbox',
-                        'label' => __('set order status completed after payment instead of processing', 'amwal'),
-                        'default' => 'no'),
+                'complete_paid_order' => array(
+                    'title' => __('Complete order after payment', 'amwal'),
+                    'type' => 'checkbox',
+                    'label' => __('set order status completed after payment instead of processing', 'amwal'),
+                    'default' => 'no'),
 
             );
         }
@@ -537,33 +537,33 @@ function woocommerce_amwal_creditcard_wc_init()
             //             }
 
             //         }
-                    $isPaymentApproved =true;
-                    if ($isPaymentApproved) {
+            $isPaymentApproved = true;
+            if ($isPaymentApproved) {
 
-                        $this->msg['class'] = 'woocommerce_message';
-                        $payRef = "Payment Reference Number ". $_SESSION['systemreference'];
-                        $check = $order->payment_complete($payRef);
-                        // Reduce stock levels
-                        $order->reduce_order_stock();
-                        // Remove cart
-                        $woocommerce->cart->empty_cart();
-                        if($this->complete_paid_order=='yes'){
-                            $order->update_status( 'completed' );
-                        }
+                $this->msg['class'] = 'woocommerce_message';
+                $payRef = "Payment Reference Number " . $_SESSION['systemreference'];
+                $check = $order->payment_complete($payRef);
+                // Reduce stock levels
+                $order->reduce_order_stock();
+                // Remove cart
+                $woocommerce->cart->empty_cart();
+                if ($this->complete_paid_order == 'yes') {
+                    $order->update_status('completed');
+                }
 
-                        wc_add_notice('' . __('Thank you for shopping with us. Your account has been charged and your transaction is successful.We will be shipping your order to you soon.', 'woocommerce'), 'success');
+                wc_add_notice('' . __('Thank you for shopping with us. Your account has been charged and your transaction is successful.We will be shipping your order to you soon.', 'woocommerce'), 'success');
 
-                        wp_redirect($this->get_return_url($order));
-                    } else {
-                        // payment declined.
-                        $order->update_status('failed', __('Payment Cancelled', 'error'));
-                        // Add error for the customer when we return back to the cart
-                        $message = $object->result;
-                        wc_add_notice('<strong></strong> ' . __($message, 'error'), 'error');
-                        // Redirect back to the last step in the checkout process
-                        wp_redirect($this->get_cancel_order_url($order));
-                        exit;
-                    }
+                wp_redirect($this->get_return_url($order));
+            } else {
+                // payment declined.
+                $order->update_status('failed', __('Payment Cancelled', 'error'));
+                // Add error for the customer when we return back to the cart
+                $message = $object->result;
+                wc_add_notice('<strong></strong> ' . __($message, 'error'), 'error');
+                // Redirect back to the last step in the checkout process
+                wp_redirect($this->get_cancel_order_url($order));
+                exit;
+            }
 
 
             //     } else {
@@ -1015,11 +1015,19 @@ function woocommerce_amwal_creditcard_wc_init()
     }
 
 
+    function encryptWithSHA256($input, $hexKey)
+    {
+        // Convert the hex key to binary
+        $binaryKey = hex2bin($hexKey);
+        // Calculate the SHA-256 hash using hash_hmac
+        $hash = hash_hmac('sha256', $input, $binaryKey);
+        return $hash;
+    }
 
     function generateString($amount, $currencyId, $merchantId, $merchantReference,
-                            $requestDateTime, $terminalId,$hmacKey) {
+                            $requestDateTime, $terminalId, $hmacKey)
+    {
         // Convert HMAC key to byte
-        $secret = hex2bin($hmacKey);
 
         // Calculate amount
 
@@ -1027,20 +1035,13 @@ function woocommerce_amwal_creditcard_wc_init()
         $string = "Amount={$amount}&CurrencyId={$currencyId}&MerchantId={$merchantId}&MerchantReference={$merchantReference}&RequestDateTime={$requestDateTime}&TerminalId={$terminalId}";
 
         // Generate SIGN
-        $sign = bin2hex(hash_hmac('sha256', $string, $secret));
+        $sign = encryptWithSHA256($string, $hmacKey);
 
 
-               echo '<script type="text/javascript">
-  setTimeout(function(){
-console.log("' . $string . '";);
-
-console.log("' . $sign . '";);
-     }, 2000);
-       </script>';
-        return $sign;
+        return strtoupper($sign);
     }
 
-    function excuse_hook_javascript($amount,$setting, $refNumber)
+    function excuse_hook_javascript($amount, $setting, $refNumber)
     {
 
 //        $amount = $amount * 100;
@@ -1049,14 +1050,14 @@ console.log("' . $sign . '";);
         $datetime = $currentdate->format('Y-m-d\TH:i:s\Z');
 
         // Generate secure hash
-        $secret_key = generateString($amount,512,$setting['merchant_id'],$refNumber,
-            $datetime,$setting['terminal_id'], $setting['secret_key']);
+        $secret_key = generateString($amount, 512, $setting['merchant_id'], $refNumber,
+            $datetime, $setting['terminal_id'], $setting['secret_key']);
 
-       echo '<script type="text/javascript">
+        echo '<script type="text/javascript">
                 var amount =  ' . $amount . ';
                 var merchant_id = ' . $setting['merchant_id'] . ';
                 var terminal_id = ' . $setting['terminal_id'] . ';
-                var secret_key = "'.$secret_key . '";
+                var secret_key = "' . $secret_key . '";
                 var refNumber =  "' . $refNumber . '";
                 var datetime =  "' . $datetime . '";
                 setTimeout(function(){
@@ -1072,10 +1073,10 @@ console.log("' . $sign . '";);
     {
 
         ?>
-            <script type="text/javascript">
-            var templateUrl = '<?= plugins_url( '/js/LightBox.js', __FILE__ ); ?>';
-                loadScript(templateUrl);
-            </script>
+        <script type="text/javascript">
+            var templateUrl = '<?= plugins_url('/js/LightBox.js', __FILE__); ?>';
+            loadScript(templateUrl);
+        </script>
 
 
         <?php
@@ -1085,8 +1086,8 @@ console.log("' . $sign . '";);
     {
         ?>
         <script type="text/javascript">
-              var templateUrl = '<?= plugins_url( '/js/LightBox.js', __FILE__ ); ?>';
-                loadScript(templateUrl);
+            var templateUrl = '<?= plugins_url('/js/LightBox.js', __FILE__); ?>';
+            loadScript(templateUrl);
         </script>
 
 
@@ -1096,8 +1097,8 @@ console.log("' . $sign . '";);
 
     function completeRequest()
     {
-        if(isset($_SESSION['order_id'])){
-              $order = new WC_Order($_SESSION['order_id']);
+        if (isset($_SESSION['order_id'])) {
+            $order = new WC_Order($_SESSION['order_id']);
             $url = $order->get_checkout_payment_url(true);
 
             $data = array(
@@ -1112,13 +1113,13 @@ console.log("' . $sign . '";);
 
     function wpb_hook_javascript()
     {
-      completeRequest();
+        completeRequest();
 
         ?>
-         <script type='text/javascript'>
+        <script type='text/javascript'>
 
             function loadScript(url) {
-               // Adding the script tag to the head as suggested before
+                // Adding the script tag to the head as suggested before
                 var head = document.head;
                 var script = document.createElement('script');
                 script.type = 'text/javascript';
@@ -1126,59 +1127,64 @@ console.log("' . $sign . '";);
                 // Fire the loading
                 head.appendChild(script);
             }
+
             var callBackStatus = "";
 
-            function callSmartBox(amount,merchant_id,terminal_id,
-                                  secret_key, refNumber,datetime ,currencyId) {
+            function callSmartBox(amount, merchant_id, terminal_id,
+                                  secret_key, refNumber, datetime, currencyId) {
                 var mID = merchant_id;
-                var tID =  terminal_id ;
+                var tID = terminal_id;
                 if (mID === "" || tID === "") {
-                     document.getElementById("Error").style.display = "block";
-                     return;
+                    document.getElementById("Error").style.display = "block";
+                    return;
                 }
 
-                  var paymentMethodFromSmartBox = null;
+                var paymentMethodFromSmartBox = null;
                 var languageId = 0;
-                var secureHash =secret_key;
+                var secureHash = secret_key;
                 var trxDateTime = datetime;
                 var expirationDateTime = "";
-                var merchantReference =refNumber;
+                var merchantReference = refNumber;
                 var paymentViewType = 1;
                 var errorMessage = 'error in payment';
 
                 // document.getElementById("Error").style.display = "none";
                 SmartBox.Checkout.configure = {
-                MID: mID,
-                TID: tID,
-                CurrencyId: currencyId,
-                LanguageId: languageId,
-                SecureHash: secureHash,
-                TrxDateTime: trxDateTime,
-                AmountTrxn: amount,
-                MerchantReference: merchantReference,
-                PaymentViewType: paymentViewType,
+                    MID: mID,
+                    TID: tID,
+                    CurrencyId: currencyId,
+                    LanguageId: languageId,
+                    SecureHash: secureHash,
+                    TrxDateTime: trxDateTime,
+                    AmountTrxn: amount,
+                    MerchantReference: merchantReference,
+                    PaymentViewType: paymentViewType,
+                    RequestSource: "WOOCOMMERCE",
 
-                completeCallback: function (data) {
-                    dateResponse = data;
-                    console.log(data);
-                    // setTimeout(() => {
-                    //     SmartBox.Checkout.closeSmartBox();
-                    // }, 3000);
-                    window.location =    window.location.href.split('?')[0] +'?ordercomplete=true' ; //&systemreference='+dateResponse.SystemReference
+                    completeCallback: function (data) {
+                        dateResponse = data;
+                        console.log(data);
+                        // setTimeout(() => {
+                        //     SmartBox.Checkout.closeSmartBox();
+                        // }, 3000);
+                        window.location = window.location.href.split('?')[0] + '?ordercomplete=true'; //&systemreference='+dateResponse.SystemReference
 
-                },
-                errorCallback: function (data) {
-                    console.log("errorCallback Received Data", data);
-                    setTimeout(() => {
-                    alert(JSON.stringify(data))
-                    }, 3000);
-                },
-                cancelCallback: function () {
-                    console.log("cancelCallback Received Data", data);
-                    setTimeout(() => {
-                    alert(JSON.stringify(data))
-                    }, 3000);
-                },
+                    },
+                    errorCallback: function (data) {
+                        console.log("errorCallback Received Data", data);
+                        setTimeout(() => {
+                            // alert(JSON.stringify(data))
+                            alert("An error has been occurred")
+                        }, 3000);
+                    },
+                    cancelCallback: function () {
+                        console.log("cancelCallback Received Data", data);
+                        setTimeout(() => {
+                            alert("An error has been occurred")
+
+                            // alert(JSON.stringify(data))
+                        }, 3000);
+                    },
                 };
                 var url = SmartBox.Checkout.getSmartBoxUrl();
                 SmartBox.Checkout.showSmartBox()
@@ -1188,11 +1194,11 @@ console.log("' . $sign . '";);
             function GetColorNotBlack(element) {
                 var color = $("#" + element).val();
                 if (color != "#000000") {
-                return color.substr(1);
+                    return color.substr(1);
                 }
                 return null;
             }
-         </script>
+        </script>
         <?php
 
 
