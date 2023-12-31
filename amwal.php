@@ -35,7 +35,7 @@ function woocommerce_amwal_creditcard_wc_init()
 
             //fetch data from admin setting
             $this->title = "Amwal pay";
-            $this->description = 'amwal payment Gatewey';
+            $this->description = 'Amwal Payment Gateway for Oman  and supports all card and wallet payment';
             $this->merchant_id = $this->settings['merchant_id'];
             $this->live = $this->settings['live'];
             $this->complete_paid_order = $this->settings['complete_paid_order'];
@@ -56,7 +56,7 @@ function woocommerce_amwal_creditcard_wc_init()
                 add_action('wp_head', 'wpb_load_test_server_javascript');
             }
 
-            if (isset($_GET['lightbox'])) {
+            if (isset($_GET['smartbox'])) {
                 excuse_hook_javascript($_SESSION['amount'], $this->settings, $_SESSION['ref_number']);
             }
 
@@ -344,7 +344,7 @@ function woocommerce_amwal_creditcard_wc_init()
 
                 return array(
                     'result' => 'success',
-                    'redirect' => "?lightbox=true"
+                    'redirect' => "?smartbox=true"
                 );
 
             } else {
