@@ -28,7 +28,7 @@ function woocommerce_amwal_creditcard_wc_init()
             $this->id = 'amwal';
             // $this->icon = apply_filters('woocommerce_amwal_icon',  plugins_url( 'icons/amwal.png' , __FILE__ ));
             $this->medthod_title = 'Amwal Payment Gateway - PayForm';
-            $this->method_description = 'Amwal Payment Gatewey';
+            $this->method_description = 'Amwal Payment Gateway for Oman  and supports all card and wallet payment';
             $this->has_fields = false;
             $this->init_settings();
             $this->init_form_fields();
@@ -423,65 +423,7 @@ function woocommerce_amwal_creditcard_wc_init()
         }
 
 
-        function getTime()
-        {
 
-            $now = new DateTime();
-            $time = $now->format('Y-m-d H:i:s');
-
-            $date = strtotime($time);
-            $day = date('d', $date);
-            $month = date('m', $date);
-            $year = date('y', $date);
-            $hour = date('H', $date);
-            $minutes = date('i', $date);
-            $seconds = date('s', $date);
-            return $year . $month . $day . $hour . $minutes . $seconds . '';
-
-        }
-
-
-        function getTimeNow()
-        {
-
-            $now = new DateTime();
-            $time = $now->format('Y-m-d H:i:s');
-
-            $date = strtotime($time);
-            $day = date('d', $date);
-            $month = date('m', $date);
-            $year = date('Y', $date);
-            return $year . $month . $day . '';
-
-        }
-
-
-        function strToHex($string)
-        {
-            $hex = '';
-            for ($i = 0; $i < strlen($string); $i++) {
-                $hex .= dechex(ord($string[$i]));
-            }
-            return $hex;
-        }
-
-        function hexToStr($hex)
-        {
-            $string = '';
-            for ($i = 0; $i < strlen($hex) - 1; $i += 2) {
-                $string .= chr(hexdec($hex[$i] . $hex[$i + 1]));
-            }
-            return $string;
-        }
-
-        function generateSecureHash($time)
-        {
-            $merchantId = $this->merchant_id;
-            $terminalId = $this->terminal_id;
-            $secretKey = $this->secret_key;
-            $hashing = "DateTimeLocalTrxn=$time&MerchantId=$merchantId&TerminalId=$terminalId";
-            return hash_hmac('sha256', $hashing, $this->hexToStr($secretKey));
-        }
 
         /*
         When transaction completed it is check the status
@@ -491,52 +433,7 @@ function woocommerce_amwal_creditcard_wc_init()
         {
             global $woocommerce;
             $order = new WC_Order($_SESSION['order_id']);
-            // $this->secret_key
-            // $time = $this->getTime();
-            // $secureHash = $this->generateSecureHash($time);
-            // // $request_string = array(
-            // //     'Amount' =>$_SESSION['amount'],
-            // //     'Currency' => 512,
-            // //     'CurrencyId' => 512,
-            // //     'Language' => 0,
-            // //     'MerchantId' => $this->merchant_id,
-            // //     'MerchantReference' => "",
-            // //     'RequestDateTime' => $time,
-            // //     'RequestSource' => 4,
-            // //     'SecureHashValue' => $secureHash,
-            // //     'TerminalId' => $this->terminal_id,
-            // // );
 
-
-            // // $getdataresponse = $this->sendRequest($this->liveurl, $request_string);
-
-            // // $object = json_decode($getdataresponse);
-
-            // if ($object != null) {
-            //     $done = true;
-
-            //     //if get response successfull
-            //     if ($object->TotalCountAllTransaction > 0) {
-            //         $paidAmount = doubleval($_SESSION['amount'])*100;
-            //         $isPaymentApproved = false;
-            //         $transactions = $object->Transactions;
-
-            //         foreach ($transactions as $transaction) {
-            //             $dateTransactions = $transaction->DateTransactions;
-            //             foreach ($dateTransactions as $dateTransaction) {
-            //                 if ($dateTransaction->MerchantReference == $_SESSION['ref_number']) {
-            //                     $serverAmount = doubleval($dateTransaction->AmountTrxn);
-            //                     if ($dateTransaction->Status == 'Approved' && ($paidAmount==$serverAmount)) {
-            //                         $isPaymentApproved = true;
-            //                         break;
-            //                     } else {
-            //                         $isPaymentApproved = false;
-            //                         break;
-            //                     }
-            //                 }
-            //             }
-
-            //         }
             $isPaymentApproved = true;
             if ($isPaymentApproved) {
 
@@ -1041,10 +938,9 @@ function woocommerce_amwal_creditcard_wc_init()
         return strtoupper($sign);
     }
 
-    function excuse_hook_javascript($amount, $setting, $refNumber)
+    function excuse_hook_javascript($amount, $setting, $refNumber,$locale)
     {
 
-//        $amount = $amount * 100;
 
         $currentdate = new DateTime();
         $datetime = $currentdate->format('Y-m-d\TH:i:s\Z');
@@ -1060,9 +956,10 @@ function woocommerce_amwal_creditcard_wc_init()
                 var secret_key = "' . $secret_key . '";
                 var refNumber =  "' . $refNumber . '";
                 var datetime =  "' . $datetime . '";
+                var locale =  "' . $locale . '";
                 setTimeout(function(){
                             callSmartBox( amount,merchant_id,
-                            terminal_id,secret_key, refNumber ,datetime,512);
+                            terminal_id,secret_key, refNumber ,datetime,512,locale);
                             }, 2000);
             </script>';
 
@@ -1074,7 +971,7 @@ function woocommerce_amwal_creditcard_wc_init()
 
         ?>
         <script type="text/javascript">
-            var templateUrl = '<?= plugins_url('/js/LightBox.js', __FILE__); ?>';
+            var templateUrl = '<?= plugins_url('/js/SmartBox.js', __FILE__); ?>';
             loadScript(templateUrl);
         </script>
 
@@ -1086,7 +983,7 @@ function woocommerce_amwal_creditcard_wc_init()
     {
         ?>
         <script type="text/javascript">
-            var templateUrl = '<?= plugins_url('/js/LightBox.js', __FILE__); ?>';
+            var templateUrl = '<?= plugins_url('/js/SmartBox.js', __FILE__); ?>';
             loadScript(templateUrl);
         </script>
 
@@ -1131,7 +1028,7 @@ function woocommerce_amwal_creditcard_wc_init()
             var callBackStatus = "";
 
             function callSmartBox(amount, merchant_id, terminal_id,
-                                  secret_key, refNumber, datetime, currencyId) {
+                                  secret_key, refNumber, datetime, currencyId,local) {
                 var mID = merchant_id;
                 var tID = terminal_id;
                 if (mID === "" || tID === "") {
@@ -1139,16 +1036,18 @@ function woocommerce_amwal_creditcard_wc_init()
                     return;
                 }
 
-                var paymentMethodFromSmartBox = null;
-                var languageId = 0;
+                var languageId = "";
+                if(local){
+                    languageId = "ar";
+                }else {
+                    languageId = "en";
+
+                }
                 var secureHash = secret_key;
                 var trxDateTime = datetime;
-                var expirationDateTime = "";
                 var merchantReference = refNumber;
                 var paymentViewType = 1;
-                var errorMessage = 'error in payment';
 
-                // document.getElementById("Error").style.display = "none";
                 SmartBox.Checkout.configure = {
                     MID: mID,
                     TID: tID,
@@ -1186,18 +1085,11 @@ function woocommerce_amwal_creditcard_wc_init()
                         }, 3000);
                     },
                 };
-                var url = SmartBox.Checkout.getSmartBoxUrl();
+                // var url = SmartBox.Checkout.getSmartBoxUrl();
                 SmartBox.Checkout.showSmartBox()
             }
 
 
-            function GetColorNotBlack(element) {
-                var color = $("#" + element).val();
-                if (color != "#000000") {
-                    return color.substr(1);
-                }
-                return null;
-            }
         </script>
         <?php
 
