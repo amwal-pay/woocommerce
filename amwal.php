@@ -9,6 +9,9 @@
  *     Author URL: http://amwal.io
  *
  ********************************************************************************************************************************/
+
+use App\Models\Shop;
+
 @session_start();
 //load plugin finction when woocommerce loaded
 add_action('plugins_loaded', 'woocommerce_amwal_creditcard_wc_init', 0);
@@ -425,6 +428,54 @@ function woocommerce_amwal_creditcard_wc_init()
 
 
 
+
+        public function getTransactionDetails($orderNo)
+        {
+
+
+            $currentDate = new DateTime();
+
+            $datetime = $currentDate->format('YmdHis');
+
+
+            $secret_key = generateString("", 512, $this->settings['merchant_id'], $orderNo,
+                $datetime, $this->settings['terminal_id'], $this->settings['secret_key']);
+
+
+            $data = [
+                'terminalId'=>$this->settings['terminal_id'],
+                'merchantId'=> $this->settings['merchant_id'],
+                'requestDateTime'=> $datetime,
+                'currentPage' => 1,
+                'merchantReference'=> $orderNo,
+                'pageSize' => 10,
+                'SecureHash' => $secret_key
+            ];
+
+            $url = 'https://merchantapp.amwalpg.com/Transaction/GetTransactionsWithStatistic';
+
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+            ]);
+
+            $response = curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                echo 'Curl error: ' . curl_error($ch);
+            }
+
+            curl_close($ch);
+
+            return json_decode($response, true);
+
+        }
+
+
         /*
         When transaction completed it is check the status
         is transaction completed or rejected
@@ -433,8 +484,13 @@ function woocommerce_amwal_creditcard_wc_init()
         {
             global $woocommerce;
             $order = new WC_Order($_SESSION['order_id']);
-
-            $isPaymentApproved = true;
+            $transactions = $this->getTransactionDetails($order);
+            $isPaymentApproved = false;
+            foreach ($transactions['data']['records'] as $record) {
+                if ($record['merchantRefNumber'] == $order) {
+                    $isPaymentApproved = true;
+                }
+            }
             if ($isPaymentApproved) {
 
                 $this->msg['class'] = 'woocommerce_message';
