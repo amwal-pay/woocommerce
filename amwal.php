@@ -428,6 +428,18 @@ function woocommerce_amwal_creditcard_wc_init()
 
 
 
+        private function generateStringForFilter(
+            $merchantId,
+            $merchantReference,
+            $terminalId,
+            $hmacKey,
+            $trxDateTime
+        )
+        {
+            $string = "MerchantId={$merchantId}&MerchantReference={$merchantReference}&RequestDateTime={$trxDateTime}&TerminalId={$terminalId}";
+            $sign = encryptWithSHA256($string, $hmacKey);
+            return strtoupper($sign);
+        }
 
         public function getTransactionDetails($orderNo)
         {
@@ -438,8 +450,9 @@ function woocommerce_amwal_creditcard_wc_init()
             $datetime = $currentDate->format('YmdHis');
 
 
-            $secret_key = generateString("", 512, $this->settings['merchant_id'], $orderNo,
-                $datetime, $this->settings['terminal_id'], $this->settings['secret_key']);
+            $secret_key = $this->generateStringForFilter(
+                $this->settings['merchant_id'],
+                $orderNo, $this->settings['terminal_id'], $this->settings['secret_key'], $datetime);
 
 
             $data = [
@@ -449,15 +462,17 @@ function woocommerce_amwal_creditcard_wc_init()
                 'currentPage' => 1,
                 'merchantReference'=> $orderNo,
                 'pageSize' => 10,
-                'SecureHash' => $secret_key
+                'secureHashValue' => $secret_key
             ];
 
-            $url = 'https://merchantapp.amwalpg.com/Transaction/GetTransactionsWithStatistic';
+            $url = 'https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics';
 
             $ch = curl_init($url);
 
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
@@ -486,13 +501,14 @@ function woocommerce_amwal_creditcard_wc_init()
             $order = new WC_Order($_SESSION['order_id']);
             $transactions = $this->getTransactionDetails($order);
             $isPaymentApproved = false;
-            foreach ($transactions['data']['records'] as $record) {
-                if ($record['merchantRefNumber'] == $order) {
-                    $isPaymentApproved = true;
+            if($transactions != null && $transactions['data']['records']!= null ){
+                foreach ($transactions['data']['records'] as $record) {
+                    if ($record['merchantRefNumber'] == $order) {
+                        $isPaymentApproved = true;
+                    }
                 }
             }
             if ($isPaymentApproved) {
-
                 $this->msg['class'] = 'woocommerce_message';
                 $payRef = "Payment Reference Number " . $_SESSION['systemreference'];
                 $check = $order->payment_complete($payRef);
