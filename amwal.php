@@ -426,49 +426,56 @@ function woocommerce_amwal_creditcard_wc_init()
         }
 
 
-
-
         private function generateStringForFilter(
-            $merchantId,
-            $merchantReference,
-            $terminalId,
-            $hmacKey,
-            $trxDateTime
+            $data, $hmacKey
+
         )
         {
-            $string = "MerchantId={$merchantId}&MerchantReference={$merchantReference}&RequestDateTime={$trxDateTime}&TerminalId={$terminalId}";
+            // Convert data array to string key value with and sign
+            $string = '';
+            foreach ($data as $key => $value) {
+                $string .= $key . '=' . $value . '&';
+            }
+            $string = rtrim($string, '&');
+            // Generate SIGN
             $sign = encryptWithSHA256($string, $hmacKey);
             return strtoupper($sign);
         }
+
 
         public function getTransactionDetails($orderNo)
         {
 
 
+//            $this->settings['merchant_id'],
+//                $orderNo, $this->settings['terminal_id'], $this->settings['secret_key']
             $currentDate = new DateTime();
+            // Calculate DateFrom as two days from now
+            $dateFrom = $currentDate->modify('-1 month')->format('d/m/Y');
 
-            $datetime = $currentDate->format('YmdHis');
+            // Calculate DateTo as one month after now
+            $dateTo = $currentDate->modify('+2 month')->format('d/m/Y');
 
-
-            $secret_key = $this->generateStringForFilter(
-                $this->settings['merchant_id'],
-                $orderNo, $this->settings['terminal_id'], $this->settings['secret_key'], $datetime);
-
+            $datetime = $currentDate->format('Y-m-d H:i:s');
 
             $data = [
-                'terminalId'=>$this->settings['terminal_id'],
-                'merchantId'=> $this->settings['merchant_id'],
-                'requestDateTime'=> $datetime,
                 'currentPage' => 1,
-                'merchantReference'=> $orderNo,
+                'DateFrom' => $dateFrom, // Add DateFrom
+                'DateTo' => $dateTo, // Add DateTo
+                'merchantId' => $this->settings['merchant_id'],
+                'merchantReference' => $_SESSION['ref_number'],
                 'pageSize' => 10,
-                'secureHashValue' => $secret_key
+                'requestDateTime' => $datetime,
+                'terminalId' => $this->settings['terminal_id'],
             ];
+            $secureHashValue = $this->generateStringForFilter($data, $this->settings['secret_key']);
+
+
+            $data['secureHashValue'] = $secureHashValue;
 
             $url = 'https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics';
 
             $ch = curl_init($url);
-
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -483,11 +490,10 @@ function woocommerce_amwal_creditcard_wc_init()
             if (curl_errno($ch)) {
                 echo 'Curl error: ' . curl_error($ch);
             }
-
             curl_close($ch);
 
             return json_decode($response, true);
-
+//            return $data;
         }
 
 
@@ -501,13 +507,26 @@ function woocommerce_amwal_creditcard_wc_init()
             $order = new WC_Order($_SESSION['order_id']);
             $transactions = $this->getTransactionDetails($order);
             $isPaymentApproved = false;
-            if($transactions != null && $transactions['data']['records']!= null ){
+            if ($transactions != null && $transactions['data']['records'] != null) {
                 foreach ($transactions['data']['records'] as $record) {
-                    if ($record['merchantRefNumber'] == $order) {
+                    if ($record['merchantReference'] == $_SESSION['ref_number']) {
                         $isPaymentApproved = true;
                     }
                 }
             }
+//            $jsonData = json_encode($transactions);
+
+//            echo '<script type="text/javascript">
+//        setTimeout(function(){
+//            // Parse JSON string to JavaScript object
+//             var data = JSON.parse(\'' . $jsonData . '\');
+//            console.log(data);
+//            console.log(' . $_SESSION['ref_number'] . ');
+//
+//        }, 2000);
+//    </script>';
+//            return;
+
             if ($isPaymentApproved) {
                 $this->msg['class'] = 'woocommerce_message';
                 $payRef = "Payment Reference Number " . $_SESSION['systemreference'];
@@ -993,47 +1012,57 @@ function woocommerce_amwal_creditcard_wc_init()
         return $hash;
     }
 
-    function generateString($amount, $currencyId, $merchantId, $merchantReference,
-                            $requestDateTime, $terminalId, $hmacKey)
+    function generateString(
+        $amount,
+        $currencyId,
+        $merchantId,
+        $merchantReference,
+        $terminalId,
+        $hmacKey,
+        $trxDateTime
+    )
     {
-        // Convert HMAC key to byte
 
-        // Calculate amount
+        $string = "Amount={$amount}&CurrencyId={$currencyId}&MerchantId={$merchantId}&MerchantReference={$merchantReference}&RequestDateTime={$trxDateTime}&TerminalId={$terminalId}";
 
-        // Concatenate information
-        $string = "Amount={$amount}&CurrencyId={$currencyId}&MerchantId={$merchantId}&MerchantReference={$merchantReference}&RequestDateTime={$requestDateTime}&TerminalId={$terminalId}";
-
-        // Generate SIGN
         $sign = encryptWithSHA256($string, $hmacKey);
-
-
         return strtoupper($sign);
     }
 
-    function excuse_hook_javascript($amount, $setting, $refNumber,$locale)
+
+    function excuse_hook_javascript($amount, $setting, $refNumber)
     {
 
-
-        $currentdate = new DateTime();
-        $datetime = $currentdate->format('Y-m-d\TH:i:s\Z');
+        $locale = "ar";
+        $currentDate = new DateTime();
+        $datetime = $currentDate->format('YmdHis');
 
         // Generate secure hash
-        $secret_key = generateString($amount, 512, $setting['merchant_id'], $refNumber,
-            $datetime, $setting['terminal_id'], $setting['secret_key']);
+        $secret_key = generateString($amount, 512, $setting['merchant_id'], $refNumber
+            , $setting['terminal_id'], $setting['secret_key'], $datetime);
+
+        $data = (object)[
+            'AmountTrxn' => "$amount",
+            'MerchantReference' => "$refNumber",
+            'MID' => $setting['merchant_id'],
+            'TID' => $setting['terminal_id'],
+            'CurrencyId' => 512,
+            'LanguageId' => $locale,
+            'SecureHash' => $secret_key,
+            'TrxDateTime' => $datetime,
+            'PaymentViewType' => 1,
+            'RequestSource' => 'WOOCOMMERCE',
+        ];
+
+        $jsonData = json_encode($data);
 
         echo '<script type="text/javascript">
-                var amount =  ' . $amount . ';
-                var merchant_id = ' . $setting['merchant_id'] . ';
-                var terminal_id = ' . $setting['terminal_id'] . ';
-                var secret_key = "' . $secret_key . '";
-                var refNumber =  "' . $refNumber . '";
-                var datetime =  "' . $datetime . '";
-                var locale =  "' . $locale . '";
-                setTimeout(function(){
-                            callSmartBox( amount,merchant_id,
-                            terminal_id,secret_key, refNumber ,datetime,512,locale);
-                            }, 2000);
-            </script>';
+        setTimeout(function(){
+            // Parse JSON string to JavaScript object
+             var data = JSON.parse(\'' . $jsonData . '\');
+            callSmartBox(data);
+        }, 2000);
+    </script>';
 
     }
 
@@ -1099,38 +1128,15 @@ function woocommerce_amwal_creditcard_wc_init()
 
             var callBackStatus = "";
 
-            function callSmartBox(amount, merchant_id, terminal_id,
-                                  secret_key, refNumber, datetime, currencyId,local) {
-                var mID = merchant_id;
-                var tID = terminal_id;
-                if (mID === "" || tID === "") {
+            function callSmartBox(data) {
+                if (data["MID"] === "" || data["TID"] === "") {
                     document.getElementById("Error").style.display = "block";
                     return;
                 }
 
-                var languageId = "";
-                if(local){
-                    languageId = "ar";
-                }else {
-                    languageId = "en";
-
-                }
-                var secureHash = secret_key;
-                var trxDateTime = datetime;
-                var merchantReference = refNumber;
-                var paymentViewType = 1;
 
                 SmartBox.Checkout.configure = {
-                    MID: mID,
-                    TID: tID,
-                    CurrencyId: currencyId,
-                    LanguageId: languageId,
-                    SecureHash: secureHash,
-                    TrxDateTime: trxDateTime,
-                    AmountTrxn: amount,
-                    MerchantReference: merchantReference,
-                    PaymentViewType: paymentViewType,
-                    RequestSource: "WOOCOMMERCE",
+                    ...data,
 
                     completeCallback: function (data) {
                         dateResponse = data;
