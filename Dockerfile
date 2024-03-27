@@ -4,7 +4,7 @@ FROM php:7.4-apache
 # Set the working directory in the container
 WORKDIR /var/www/html
 
-# Install necessary PHP extensions and dependencies
+# Install necessary PHP extensions and dependencies.
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
