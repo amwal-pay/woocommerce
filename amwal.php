@@ -1085,7 +1085,7 @@ function woocommerce_amwal_creditcard_wc_init()
     {
         ?>
         <script type="text/javascript">
-            var templateUrl = 'https://checkout.amwalpg.com/SmartBox.js?v=1.1';
+            var templateUrl = 'https://test.amwalpg.com:7443/SmartBox.js?v=1.1';
             loadScript(templateUrl);
         </script>
 
