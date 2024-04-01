@@ -1060,11 +1060,12 @@ function woocommerce_amwal_creditcard_wc_init()
         setTimeout(function(){
             // Parse JSON string to JavaScript object
              var data = JSON.parse(\'' . $jsonData . '\');
-            callSmartBox(data);
-        }, 2000);
+             callSmartBox(data);
+        }, 5000);
     </script>';
 
     }
+
 
 
     function wpb_load_test_server_javascript()
@@ -1072,7 +1073,7 @@ function woocommerce_amwal_creditcard_wc_init()
 
         ?>
         <script type="text/javascript">
-            var templateUrl = '<?= plugins_url('/js/SmartBox.js', __FILE__); ?>';
+            var templateUrl = 'https://test.amwalpg.com:19443/SmartBox.js?v=1.1';
             loadScript(templateUrl);
         </script>
 
@@ -1084,7 +1085,7 @@ function woocommerce_amwal_creditcard_wc_init()
     {
         ?>
         <script type="text/javascript">
-            var templateUrl = '<?= plugins_url('/js/SmartBox.js', __FILE__); ?>';
+            var templateUrl = 'https://checkout.amwalpg.com/SmartBox.js?v=1.1';
             loadScript(templateUrl);
         </script>
 
@@ -1112,7 +1113,6 @@ function woocommerce_amwal_creditcard_wc_init()
     function wpb_hook_javascript()
     {
         completeRequest();
-
         ?>
         <script type='text/javascript'>
 
