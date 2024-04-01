@@ -473,8 +473,11 @@ function woocommerce_amwal_creditcard_wc_init()
 
             $data['secureHashValue'] = $secureHashValue;
 
-            $url = 'https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics';
-
+            if ($this->live == "yes") {
+                $url = 'https://test.amwalpg.com:24443/Transaction/GetTransactionsWithStatistics';
+            } else {
+                $url = ' https://test.amwalpg.com:14443/Transaction/GetTransactionsWithStatistics';
+            }
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
