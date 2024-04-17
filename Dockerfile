@@ -1,20 +1,32 @@
-# Use a base image with PHP and Apache
-FROM php:7.4-apache
+# Use the official WordPress image as base
+FROM wordpress:latest
 
-# Set the working directory
-WORKDIR /var/www/html
+# Set environment variables for MySQL
+ENV MYSQL_ROOT_PASSWORD=root \
+    MYSQL_DATABASE=wordpress \
+    MYSQL_USER=wordpress \
+    MYSQL_PASSWORD=password
 
-# Copy files and directories from the repository into the container
-COPY css/*.css css/
-COPY icons/ icons/
-COPY images/ images/
-COPY js/ js/
-COPY amwal-payment-link.php .
-COPY amwal.php .
-COPY example.mp4 .
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y \
+    wget \
+    unzip \
+    mysql-client
 
-# Expose port 80 to access the web server
+# Install WooCommerce
+RUN wget -O /usr/src/woocommerce.zip https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip && \
+    unzip /usr/src/woocommerce.zip -d /usr/src/wordpress/wp-content/plugins/ && \
+    rm /usr/src/woocommerce.zip
+
+# Install custom plugin (replace plugin-url with your actual plugin URL)
+COPY amwal.php /usr/src/wordpress/wp-content/plugins/
+
+# Set up PHP configuration for WordPress
+COPY php.ini /usr/local/etc/php/conf.d/
+
+# Expose ports
 EXPOSE 80
 
-# Start Apache web server when the container starts
-CMD ["apache2-foreground"]
+# Start MySQL service
+CMD ["docker-entrypoint.sh", "apache2-foreground"]
