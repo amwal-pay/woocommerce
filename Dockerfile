@@ -24,8 +24,11 @@ COPY amwal.php /usr/src/wordpress/wp-content/plugins/
 # Set up PHP configuration for WordPress
 COPY php.ini /usr/local/etc/php/conf.d/
 
+# Set ServerName directive to suppress warning message
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Expose ports
 EXPOSE 80
 
-# Start MySQL service
-CMD ["docker-entrypoint.sh", "apache2-foreground"]
+# Start Apache in the foreground
+CMD ["apache2ctl", "-D", "FOREGROUND"]
