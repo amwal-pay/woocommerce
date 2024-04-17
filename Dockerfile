@@ -7,9 +7,11 @@ ENV MYSQL_ROOT_PASSWORD=root \
     MYSQL_USER=wordpress \
     MYSQL_PASSWORD=password
 
+# Update package lists
+RUN apt-get update
+
 # Install required packages
-RUN apt-get update && \
-    apt-get install -y \
+RUN apt-get install -y \
     wget \
     unzip \
     mysql-client
