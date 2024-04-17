@@ -1,5 +1,5 @@
 # Use the official WordPress image as base
-FROM wordpress:latest
+FROM wordpress:5.8-php8.0
 
 # Set environment variables for MySQL
 ENV MYSQL_ROOT_PASSWORD=root \
@@ -7,13 +7,11 @@ ENV MYSQL_ROOT_PASSWORD=root \
     MYSQL_USER=wordpress \
     MYSQL_PASSWORD=password
 
-# Update package lists
-RUN apt-get update
-
-# Install required packages individually
-RUN apt-get install -y wget
-RUN apt-get install -y unzip
-RUN apt-get install -y mysql-client
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y \
+    wget \
+    unzip
 
 # Install WooCommerce
 RUN wget -O /usr/src/woocommerce.zip https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip && \
