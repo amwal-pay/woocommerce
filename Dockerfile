@@ -10,11 +10,10 @@ ENV MYSQL_ROOT_PASSWORD=root \
 # Update package lists
 RUN apt-get update
 
-# Install required packages
-RUN apt-get install -y \
-    wget \
-    unzip \
-    mysql-client
+# Install required packages individually
+RUN apt-get install -y wget
+RUN apt-get install -y unzip
+RUN apt-get install -y mysql-client
 
 # Install WooCommerce
 RUN wget -O /usr/src/woocommerce.zip https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip && \
