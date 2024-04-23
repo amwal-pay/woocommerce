@@ -1035,10 +1035,16 @@ function woocommerce_amwal_creditcard_wc_init()
 
     function excuse_hook_javascript($amount, $setting, $refNumber)
     {
-
-        $locale = "ar";
+        $locale = get_locale(); // Get the current language locale
         $currentDate = new DateTime();
         $datetime = $currentDate->format('YmdHis');
+
+        // if $locale content en make $locale = "en"
+        if (strpos($locale, 'en') !== false) {
+            $locale = "en";
+        } else {
+            $locale = "ar";
+        }
 
         // Generate secure hash
         $secret_key = generateString($amount, 512, $setting['merchant_id'], $refNumber
@@ -1068,7 +1074,6 @@ function woocommerce_amwal_creditcard_wc_init()
     </script>';
 
     }
-
 
 
     function wpb_load_test_server_javascript()
