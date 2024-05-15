@@ -1,4 +1,4 @@
-name: docker-sit
+name: woocommece_sit
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -51,7 +51,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ vars.ORG_SIT_DOCKERHUB_USER }}
-          password: ${{ secrets.ORG_SIT_DOCKERHUB_TOKEN }}
+          password: ${{ secrets.ORG_DOCKERHUB_TOKEN_PUBLIC }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
