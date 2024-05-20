@@ -474,9 +474,9 @@ function woocommerce_amwal_creditcard_wc_init()
             $data['secureHashValue'] = $secureHashValue;
 
             if ($this->live == "yes") {
-                $url = 'https://test.amwalpg.com:14443/Transaction/GetTransactionsWithStatistics';
+                $url = 'https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics';
             } else {
-                $url = ' https://test.amwalpg.com:14443/Transaction/GetTransactionsWithStatistics';
+                $url = 'https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics';
             }
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -518,7 +518,7 @@ function woocommerce_amwal_creditcard_wc_init()
                 }
             }
 //            $jsonData = json_encode($transactions);
-
+//
 //            echo '<script type="text/javascript">
 //        setTimeout(function(){
 //            // Parse JSON string to JavaScript object
@@ -1078,10 +1078,9 @@ function woocommerce_amwal_creditcard_wc_init()
 
     function wpb_load_test_server_javascript()
     {
-
         ?>
         <script type="text/javascript">
-            var templateUrl = 'https://test.amwalpg.com:19443/SmartBox.js?v=1.1';
+            var templateUrl = 'https://checkout.amwalpg.com/SmartBox.js?v=1.1';
             loadScript(templateUrl);
         </script>
 
@@ -1093,7 +1092,7 @@ function woocommerce_amwal_creditcard_wc_init()
     {
         ?>
         <script type="text/javascript">
-            var templateUrl = 'https://test.amwalpg.com:7443/SmartBox.js?v=1.1';
+            var templateUrl = 'https://checkout.amwalpg.com/SmartBox.js?v=1.1';
             loadScript(templateUrl);
         </script>
 
