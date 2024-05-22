@@ -12,6 +12,9 @@
 
 use App\Models\Shop;
 
+
+
+
 @session_start();
 //load plugin finction when woocommerce loaded
 add_action('plugins_loaded', 'woocommerce_amwal_creditcard_wc_init', 0);
@@ -23,10 +26,20 @@ function woocommerce_amwal_creditcard_wc_init()
 //extend wc_payment_gateway class and create ad class
     class WC_Gateway_amwal_creditcard_wc extends WC_Payment_Gateway
     {
+        protected $globalUrlLive; // Declare the property here
 
 
         public function __construct()
         {
+
+            $this->globalUrlLive = array(
+                "https://checkout.amwalpg.com:8443/api/smartbox/proxy/MerchantOrder/VerifySmartBoxDirectCall",
+                "https://checkout.amwalpg.com/SmartBox.js?v=1.1",
+                "https://webhook.amwalpg.com/Transaction/
+                "
+            );
+
+
 
             $this->id = 'amwal';
             // $this->icon = apply_filters('woocommerce_amwal_icon',  plugins_url( 'icons/amwal.png' , __FILE__ ));
@@ -52,11 +65,14 @@ function woocommerce_amwal_creditcard_wc_init()
             add_action('wp_head', 'wpb_hook_javascript');
 
             if ($this->live == "yes") {
-                $this->liveurl = "https://checkout.amwalpg.com:8443/api/smartbox/proxy/MerchantOrder/VerifySmartBoxDirectCall";
-                add_action('wp_head', 'wpb_load_live_server_javascript');
+                $this->liveurl = $this->globalUrlLive[0];;
+                $templateUrl = $this->globalUrlLive[1]; // Second URL for loading the script
+                add_action('wp_head', function() use ($templateUrl) { wpb_load_server_javascript($templateUrl); });
+
             } else {
-                $this->liveurl = "https://checkout.amwalpg.com:8443/api/smartbox/proxy/MerchantOrder/VerifySmartBoxDirectCall";
-                add_action('wp_head', 'wpb_load_test_server_javascript');
+                $this->liveurl = $this->globalUrlLive[0];;
+                $templateUrl = $this->globalUrlLive[1]; // Second URL for loading the script
+                add_action('wp_head', function() use ($templateUrl) { wpb_load_server_javascript($templateUrl); });
             }
 
             if (isset($_GET['smartbox'])) {
@@ -474,9 +490,9 @@ function woocommerce_amwal_creditcard_wc_init()
             $data['secureHashValue'] = $secureHashValue;
 
             if ($this->live == "yes") {
-                $url = 'https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics';
+                $url = $this->globalUrlLive[2];
             } else {
-                $url = 'https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics';
+                $url = $this->globalUrlLive[2];
             }
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1076,30 +1092,15 @@ function woocommerce_amwal_creditcard_wc_init()
     }
 
 
-    function wpb_load_test_server_javascript()
-    {
+
+    function wpb_load_server_javascript($templateUrl) {
         ?>
         <script type="text/javascript">
-            var templateUrl = 'https://checkout.amwalpg.com/SmartBox.js?v=1.1';
+            var templateUrl = '<?php echo $templateUrl;?>';
             loadScript(templateUrl);
         </script>
-
-
         <?php
     }
-
-    function wpb_load_live_server_javascript()
-    {
-        ?>
-        <script type="text/javascript">
-            var templateUrl = 'https://checkout.amwalpg.com/SmartBox.js?v=1.1';
-            loadScript(templateUrl);
-        </script>
-
-
-        <?php
-    }
-
 
     function completeRequest()
     {
