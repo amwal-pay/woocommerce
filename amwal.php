@@ -34,9 +34,9 @@ function woocommerce_amwal_creditcard_wc_init()
 
             $this->globalUrlLive = array(
                 "https://checkout.amwalpg.com:8443/api/smartbox/proxy/MerchantOrder/VerifySmartBoxDirectCall",
-                "https://checkout.amwalpg.com/SmartBox.js?v=1.1",
-                "https://webhook.amwalpg.com/Transaction/
-                "
+                "https://test.amwalpg.com/SmartBox.js?v=1.1",
+                "https://webhook.amwalpg.com/Transaction/GetTransactionsWithStatistics"
+
             );
 
 
